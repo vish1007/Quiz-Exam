@@ -121,7 +121,15 @@ let userEmail
 let examStarted=false
 
 let submitted=false
+if(localStorage.getItem("examStarted")=="true"){
 
+alert("Page refresh detected. Exam already started.")
+
+document.body.innerHTML="<h2 style='text-align:center;color:red'>Exam session closed due to refresh.</h2>"
+
+throw new Error("Exam locked")
+
+}
 function shuffleArray(array){
 
 for(let i=array.length-1;i>0;i--){
@@ -217,7 +225,7 @@ selectedQuestions=selectedQuestions.slice(0,10)
 
 
 examStarted=true
-
+localStorage.setItem("examStarted","true")
 document.getElementById("login").classList.add("hidden")
 document.getElementById("quiz").classList.remove("hidden")
 
@@ -311,7 +319,7 @@ function submitTest(){
 
 if(submitted) return
 submitted=true
-
+localStorage.removeItem("examStarted")
 clearInterval(timer)
 let score=0
 let analysis="<ol>"
@@ -448,7 +456,10 @@ submitTest()
 if(e.ctrlKey && e.key=="u"){
 submitTest()
 }
-
+if(e.key=="F5"){
+e.preventDefault()
+submitTest()
+}
 })
 // DETECT DEVTOOLS OPEN
 
