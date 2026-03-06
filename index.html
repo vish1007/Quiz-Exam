@@ -423,11 +423,52 @@ document.addEventListener("paste",e=>e.preventDefault())
 // ESC KEY SUBMIT
 
 document.addEventListener("keydown",function(e){
+
+// ESC key
 if(e.key=="Escape" && examStarted){
 submitTest()
 }
-})
 
+// F12
+if(e.key=="F12"){
+submitTest()
+}
+
+// CTRL+SHIFT+I
+if(e.ctrlKey && e.shiftKey && e.key=="I"){
+submitTest()
+}
+
+// CTRL+SHIFT+J
+if(e.ctrlKey && e.shiftKey && e.key=="J"){
+submitTest()
+}
+
+// CTRL+U (view source)
+if(e.ctrlKey && e.key=="u"){
+submitTest()
+}
+
+})
+// DETECT DEVTOOLS OPEN
+
+setInterval(function(){
+
+let start = performance.now()
+
+debugger
+
+let end = performance.now()
+
+if(end - start > 100){
+
+if(examStarted){
+submitTest()
+}
+
+}
+
+},1000)
 </script>
 
 </body>
