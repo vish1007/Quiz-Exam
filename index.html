@@ -147,9 +147,19 @@ array[j] = temp
 }
 async function loadQuestions(){
 
+let cached = sessionStorage.getItem("quizQuestions")
+
+if(cached){
+questions = JSON.parse(cached)
+return
+}
+
 let res = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now())
 
 questions = await res.json()
+
+sessionStorage.setItem("quizQuestions",JSON.stringify(questions))
+
 console.log("Questions loaded:", questions)
 
 }
@@ -269,6 +279,8 @@ function saveAnswer(option){
 userAnswers[currentIndex] = option
 
 document.getElementById("nextBtn").style.display="inline"
+// enable next button
+document.getElementById("nextBtn").disabled = false
 
 }
 
@@ -276,20 +288,27 @@ function showQuestion(){
 
 let q=selectedQuestions[currentIndex]
 
-let options=[...q.options]
+let options = q.options.map(opt => ({
+text: opt,
+correct: opt === q.answer
+}))
+
 shuffleArray(options)
 
 let html=`<h3>Question ${currentIndex+1} of ${selectedQuestions.length}</h3>
 <h3>${q.q}</h3>`
 
 options.forEach(o=>{
-html+=`<input type="radio" name="opt" value="${o}" onclick="saveAnswer('${o}')"> ${o}<br>`
+html+=`<input type="radio" name="opt" value="${o.text}" onclick="saveAnswer('${o.text}')"> ${o.text}<br>`
 })
-
 
 document.getElementById("question-container").innerHTML=html
 
+// hide next button initially
 document.getElementById("nextBtn").style.display="none"
+
+// disable next button until option selected
+document.getElementById("nextBtn").disabled = true
 
 if(currentIndex==selectedQuestions.length-1)
  document.getElementById("nextBtn").innerText="Submit"
@@ -364,6 +383,7 @@ try{
 
 let res = await fetch(GOOGLE_SCRIPT_URL,{
 method:"POST",
+keepalive:true,
 body:JSON.stringify({
 name:userName,
 appId:appId,
