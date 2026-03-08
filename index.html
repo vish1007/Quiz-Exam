@@ -159,6 +159,7 @@ let userEmail
 let examStarted=false
 
 let submitted=false
+let questionsReady=false
 if(localStorage.getItem("examStarted")=="true"){
 
 alert("Page refresh detected. Exam already started.")
@@ -230,7 +231,7 @@ return "valid";
 }
 function startCountdown(){
 
-let count = 10
+let count = 15
 
 document.getElementById("countdownBox").style.display = "block"
 document.getElementById("countNumber").innerText = count
@@ -245,7 +246,16 @@ if(count === 0){
 
 clearInterval(interval)
 
-enterFullscreen()
+// enterFullscreen()
+
+document.getElementById("login").classList.add("hidden")
+document.getElementById("quiz").classList.remove("hidden")
+
+let wait = setInterval(()=>{
+
+if(questionsReady){
+
+clearInterval(wait)
 
 document.getElementById("login").classList.add("hidden")
 document.getElementById("quiz").classList.remove("hidden")
@@ -255,10 +265,15 @@ startTimer()
 
 }
 
+},100)
+
+}
+
 },1000)
 
 }
 async function startTest(){
+
 enterFullscreen()
 currentIndex = 0;
 userAnswers = {};
@@ -285,10 +300,20 @@ if(!userEmail.includes("@")){
 document.getElementById("loginWarning").innerText="Enter valid email"
 return
 }
+
 // disable button after validation success
 document.getElementById("startBtn").disabled = true
 document.getElementById("startBtn").innerText = "Starting..."
+
+// start countdown immediately
 startCountdown()
+
+// load questions in background
+loadExamData()
+
+}
+
+async function loadExamData(){
 
 let status = await checkApplicationId(appId)
 
@@ -298,6 +323,7 @@ return
 }
 
 await loadQuestions()
+
 if(questions.length==0){
 alert("No questions available")
 return
@@ -309,46 +335,46 @@ shuffleArray(selectedQuestions)
 
 selectedQuestions=selectedQuestions.slice(0,10)
 
+questionsReady = true
 
 examStarted=true
 localStorage.setItem("examStarted","true")
-document.getElementById("login").classList.add("hidden")
-document.getElementById("quiz").classList.remove("hidden")
-
-showQuestion()
-startTimer()
 
 }
-
-
 function enterFullscreen(){
 document.documentElement.requestFullscreen().catch(()=>{})
 }
 
 
 function startTimer(){
-updateTimer()
 
-timer=setInterval(()=>{
+let endTime = Date.now() + (time * 1000)
 
- time--
- updateTimer()
+timer = setInterval(()=>{
 
- if(time<=0){
- clearInterval(timer)
- submitTest()
- }
+let remaining = Math.floor((endTime - Date.now()) / 1000)
+
+if(remaining <= 0){
+clearInterval(timer)
+updateTimerDisplay(0)
+submitTest()
+return
+}
+
+updateTimerDisplay(remaining)
 
 },1000)
 
 }
 
+function updateTimerDisplay(seconds){
 
-function updateTimer(){
-let m=Math.floor(time/60)
-let s=time%60
+let m = Math.floor(seconds/60)
+let s = seconds % 60
 
-document.getElementById("timer").innerText=`Time Left: ${m}m ${s}s`
+document.getElementById("timer").innerText =
+`Time Left: ${m}m ${s}s`
+
 }
 function saveAnswer(option){
 
