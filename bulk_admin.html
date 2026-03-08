@@ -80,6 +80,7 @@ Answer: A
 
 <button onclick="uploadQuestions()">Upload Questions</button>
 
+<div id="status" style="margin-top:15px;color:#2563eb;font-weight:bold"></div>
 </div>
 
 <script>
@@ -89,6 +90,13 @@ const GOOGLE_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyIf55osyMQiEn5
 function uploadQuestions(){
 
 let text=document.getElementById("bulkQuestions").value;
+
+if(text.trim()==""){
+alert("Please paste questions first");
+return;
+}
+
+document.getElementById("status").innerText="Uploading questions...";
 
 fetch(GOOGLE_SCRIPT_URL,{
 method:"POST",
@@ -100,10 +108,17 @@ headers:{"Content-Type":"text/plain"}
 })
 
 .then(r=>r.text())
-.then(res=>alert("Questions uploaded successfully"))
+.then(res=>{
+document.getElementById("status").innerText="Upload completed successfully ✅";
+document.getElementById("bulkQuestions").value="";
+})
+
+.catch(err=>{
+document.getElementById("status").innerText="Upload failed ❌";
+console.error(err)
+})
 
 }
-
 </script>
 
 </body>
