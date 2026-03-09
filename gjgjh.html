@@ -189,24 +189,6 @@ async function loadQuestions(){
 let cached = sessionStorage.getItem("quizQuestions")
 
 if(cached){
-
-let res = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now())
-let text = await res.text()
-
-// If exam closed or not started → clear cache
-if(text == "Exam is closed" || text == "Exam has not started yet"){
-
-sessionStorage.removeItem("quizQuestions")
-
-alert(text)
-
-document.body.innerHTML =
-"<h2 style='text-align:center;margin-top:120px;color:red'>" + text + "</h2>"
-
-throw new Error(text)
-
-}
-
 questions = JSON.parse(cached)
 return
 }
